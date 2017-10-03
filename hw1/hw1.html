@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <script src="hw1.js"> </script>
+    <title>VIS 101 Homework</title>
+    <style type="text/css">
+       	head1 { 
+			font-size: 150%; 
+			font-weight: bold;
+			font-family: 'Open Sans', sans-serif; 
+			color: #1946ba;
+			margin-left:20px; 
+	    }
+       	head2 { 
+			font-size: 100%; 
+			font-weight: bold;
+			font-family: 'Open Sans', sans-serif; 
+			color: black;
+			margin-left:40px; 
+	    }
+	    body{
+	    	max-width: 960px;
+	    }	
+	    #main{
+	    	margin-left: 20px;
+			padding: 10px;
+		    border: 1px groove #c4c4c4;
+		    border-radius: 2px;
+		}
+		div.border {
+    	    color: #5f5f5f;
+		    border: 1px groove #F5F5F5;
+		    max-width: 960px;
+		}
+		div.quote {
+		    border-left: 3px solid #5f5f5f;
+		    margin-left: 60px;
+		    padding: 4px;
+		    color: #5f5f5f;
+
+    	}
+		button { 
+		    color:#F5F5F5;
+		    background-color: #ec0b43;
+		    padding: 10px;
+		    border: none;
+		    border-radius: 3px;
+		    margin-left: 40px;
+		}
+
+    </style>
+</head>
+<body>
+	<head1>First VIS101 Homework</head1>
+	<div id = 'main' class = "border">
+		<head2>Quote Of The Day:</head2>
+		
+			<div id ="qt" class="quote">"All successful men and women are big dreamers. They imagine what their future could be, ideal in every respect, and then they work every day toward their distant vision, that goal or purpose." – Brian Tracy</div>
+		
+	</div>
+	<p>
+		<button id="change" onclick="quote_button()">Change Quote Of The Day</button>
+	</p>
+	<p>
+		<button id="add" onclick="add_quote()">Add a Quote</button>
+	</p>
+	<p>
+		<button id="sort" onclick="sorting()">Sorting</button>
+	</p>
+
+</body>
+</html>
+ 
