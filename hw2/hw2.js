@@ -1,4 +1,3 @@
-
 var cnt = 0;
 var curr_header = '';
 
@@ -55,9 +54,25 @@ d3.json(years_files, function (errorYears, yearsData) {
         d3.selectAll(".myCheckbox").on("change", update);
 
         d3.selectAll('.agg-selector').on("change", update);
+        d3.selectAll('.sort-selector').on("change", update);
+        d3.selectAll('.view-selector').on("change", update);
         d3.select('.range-selector').on("change", update);
 
         var aggType = 'none';
+        var sortType = 'name';
+        var viewType = 'name';
+
+        var margin = {top: 50, bottom: 10, left:300, right: 40};
+        var width = 900 - margin.left - margin.right;
+        var height = 900 - margin.top - margin.bottom;
+
+        var xScale = d3.scaleLinear().range([0, width]);
+        var yScale = d3.scaleBand().rangeRound([0, height], .8, 0);
+
+        var svg = d3.select("body").append("svg")
+            .attr("width", width+margin.left+margin.right)
+            .attr("height", height+margin.top+margin.bottom);
+
 
         function setAgg() {
 
@@ -86,13 +101,29 @@ d3.json(years_files, function (errorYears, yearsData) {
 
             var choices = [];
             d3.selectAll(".myCheckbox").each(function (d) {
-                cb = d3.select(this);
+                var cb = d3.select(this);
                 if (cb.property("checked")) {
                     choices.push(cb.property("value"));
                 }
             });
 
+            d3.selectAll(".sort-selector").each(function (d) {
+                var rb  = d3.select(this);
+                if (rb.property('checked')) {
+                    sortType = rb.property("value");
+                }
+            });
+
+
+            d3.selectAll(".view-selector").each(function (d) {
+                var rb  = d3.select(this);
+                if (rb.property('checked')) {
+                    viewType = rb.property("value");
+                }
+            });
+
             setAgg();
+
 
 
             if (choices.length == 0) {
@@ -153,6 +184,10 @@ d3.json(years_files, function (errorYears, yearsData) {
                 });
             }
 
+            resultData =  resultData.sort(function(a, b){
+                return d3.ascending(a[sortType], b[sortType] );
+            });
+
 
             var rows = tbody.selectAll("tr.row")
                 .data(resultData)
@@ -182,6 +217,36 @@ d3.json(years_files, function (errorYears, yearsData) {
                 .text(function (d) { return d; });
 
             cells.exit().remove();
+
+
+            //risuem graphic
+
+            var g = svg.append("g")
+                .attr("transform", "translate("+margin.left+","+margin.top+")");
+
+            var max = d3.max(data, function(d) { return d.population; } );
+            var min = 0;
+
+            xScale.domain([min, max]);
+            yScale.domain(data.map(function(d) { return d.name; }));
+
+            var groups = g.append("g")
+                .selectAll("text")
+                .data(data)
+                .enter()
+                .append("g");
+
+            var bars = groups
+                .append("rect")
+                .attr("width", function(d) { return xScale(d.population); })
+                .attr("height", 5)
+                .attr("x", xScale(min))
+                .attr("y", function(d) { return yScale(d.name); });
+
+
+
+
+
 
             var normalizedColumns = columns.map(c => c.replace("_", ' '));
 
@@ -234,9 +299,23 @@ d3.json(years_files, function (errorYears, yearsData) {
 
                 });
 
+
+            switch (viewType){
+                case "table":
+                    table.style('display', "table");
+                    svg.style('display', "none");
+                    break;
+                case "graph":
+                    svg.style('display', "block");
+                    table.style('display', "none");
+                    break;
+            }
         }
 
+        
         update();
 
     });
 })
+
+

@@ -82,6 +82,7 @@
 
 
 
+
     <label>Time update:</label>
     <span class="min-year-value"></span>
     <input class="range-selector" type="range" name="points" step="1" value="0" id="slider-time" oninput=";">
@@ -94,9 +95,22 @@
     <input type="checkbox" class="myCheckbox" value="Europe"> Europe
     <input type="checkbox" class="myCheckbox" value="Oceania"> Oceania
     <br>
-    <label>Aggregation:</label>
-    <label>None<input class="agg-selector" checked='true' type="radio" name="details" value="none" onclick=""></label>
-    <label>by Continent<input  class="agg-selector" type="radio" name="details" value="byCont" onclick=""></label>
+    <label>Aggregation By:</label>
+    <label>Country<input class="agg-selector" checked='true' type="radio" name="agg" value="none" onclick=""></label>
+    <label>Continent<input  class="agg-selector" type="radio" name="agg" value="byCont" onclick=""></label>
+
+
+    <br>
+    <label>Sort By:</label>
+    <label>Name<input class="sort-selector" checked='true' name="sorts" type="radio"  value="name" onclick=""></label>
+    <label>Population<input  class="sort-selector" name="sorts" type="radio"  value="population" onclick=""></label>
+    <label>GDP<input  class="sort-selector" name="sorts" type="radio"  value="gdp" onclick=""></label>
+
+    <br>
+
+    <label>View type:</label>
+    <label>Table<input class="view-selector" checked='true' name="view" type="radio"  value="table" onclick=""></label>
+    <label>Graph<input  class="view-selector" name="view" type="radio"  value="graph" onclick=""></label>
 
     <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
     <script src="hw2.js"></script>
