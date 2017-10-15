@@ -56,22 +56,22 @@ d3.json(years_files, function (errorYears, yearsData) {
         d3.selectAll('.agg-selector').on("change", update);
         d3.selectAll('.sort-selector').on("change", update);
         d3.selectAll('.view-selector').on("change", update);
+        d3.selectAll('.bars-encode-selector').on("change", update);
         d3.select('.range-selector').on("change", update);
 
         var aggType = 'none';
         var sortType = 'name';
         var viewType = 'name';
+        var barsEncode = 'population';
 
-        var margin = {top: 50, bottom: 10, left:300, right: 40};
+        var margin = {top: 50, bottom: 10, left: 300, right: 40};
         var width = 900 - margin.left - margin.right;
         var height = 900 - margin.top - margin.bottom;
 
-        var xScale = d3.scaleLinear().range([0, width]);
-        var yScale = d3.scaleBand().rangeRound([0, height], .8, 0);
 
         var svg = d3.select("body").append("svg")
-            .attr("width", width+margin.left+margin.right)
-            .attr("height", height+margin.top+margin.bottom);
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom);
 
 
         function setAgg() {
@@ -89,7 +89,7 @@ d3.json(years_files, function (errorYears, yearsData) {
 
             d3.select('thead').remove();
             d3.select('tbody').remove();
-
+            d3.selectAll('svg > g').remove();
 
             thead = table.append("thead")
                 .attr("class", "thead");
@@ -107,8 +107,15 @@ d3.json(years_files, function (errorYears, yearsData) {
                 }
             });
 
+            d3.selectAll(".bars-encode-selector").each(function (d) {
+                var rb = d3.select(this);
+                if (rb.property('checked')) {
+                    barsEncode = rb.property("value");
+                }
+            });
+
             d3.selectAll(".sort-selector").each(function (d) {
-                var rb  = d3.select(this);
+                var rb = d3.select(this);
                 if (rb.property('checked')) {
                     sortType = rb.property("value");
                 }
@@ -116,14 +123,13 @@ d3.json(years_files, function (errorYears, yearsData) {
 
 
             d3.selectAll(".view-selector").each(function (d) {
-                var rb  = d3.select(this);
+                var rb = d3.select(this);
                 if (rb.property('checked')) {
                     viewType = rb.property("value");
                 }
             });
 
             setAgg();
-
 
 
             if (choices.length == 0) {
@@ -154,10 +160,11 @@ d3.json(years_files, function (errorYears, yearsData) {
             });
 
 
-
             if (aggType == 'byCont') {
                 resultData = d3.nest()
-                    .key(function (d) { return d.continent; })
+                    .key(function (d) {
+                        return d.continent;
+                    })
                     .rollup(function (leaves) {
                         var resultModel = {
                             gdp: 0,
@@ -172,7 +179,9 @@ d3.json(years_files, function (errorYears, yearsData) {
                             resultModel.population += model.population;
                         });
 
-                        resultModel.life_expectancy = d3.mean(leaves, function (l) { return l.life_expectancy })
+                        resultModel.life_expectancy = d3.mean(leaves, function (l) {
+                            return l.life_expectancy
+                        })
 
                         return resultModel;
                     }) // Where aggregation happens
@@ -184,8 +193,8 @@ d3.json(years_files, function (errorYears, yearsData) {
                 });
             }
 
-            resultData =  resultData.sort(function(a, b){
-                return d3.ascending(a[sortType], b[sortType] );
+            resultData = resultData.sort(function (a, b) {
+                return d3.ascending(a[sortType], b[sortType]);
             });
 
 
@@ -193,7 +202,6 @@ d3.json(years_files, function (errorYears, yearsData) {
                 .data(resultData)
                 .enter()
                 .append("tr").attr("class", "row");
-
 
 
             var cells = rows.selectAll("td")
@@ -214,93 +222,110 @@ d3.json(years_files, function (errorYears, yearsData) {
                 });
             cells.enter()
                 .append("td")
-                .text(function (d) { return d; });
+                .text(function (d) {
+                    return d;
+                });
 
             cells.exit().remove();
 
 
-            //risuem graphic
+            var xScale = d3.scaleLinear().range([0, width]);
+            var yScale = d3.scaleBand().rangeRound([0, height], .8, 0);
 
-            var g = svg.append("g")
-                .attr("transform", "translate("+margin.left+","+margin.top+")");
 
-            var max = d3.max(data, function(d) { return d.population; } );
+            var max = d3.max(resultData, function (d) {
+                return d[barsEncode];
+            });
             var min = 0;
 
             xScale.domain([min, max]);
-            yScale.domain(data.map(function(d) { return d.name; }));
+            yScale.domain(resultData.map(function (d) {
+                return d.name;
+            }));
+
+            var g = svg.append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
             var groups = g.append("g")
                 .selectAll("text")
-                .data(data)
+                .data(resultData)
                 .enter()
                 .append("g");
 
+         /*   groups.append("text")
+                .text(d => d.name)
+                .attr("x", xScale(min) - 200)
+                .attr("y", function (d) {
+                    return yScale(d.name);
+                });
+*/
+
             var bars = groups
                 .append("rect")
-                .attr("width", function(d) { return xScale(d.population); })
+                .attr("width", function (d) {
+                    return xScale(d[barsEncode]);
+                })
                 .attr("height", 5)
                 .attr("x", xScale(min))
-                .attr("y", function(d) { return yScale(d.name); });
-
-
-
-
+                .attr("y", function (d) {
+                    return yScale(d.name);
+                });
 
 
             var normalizedColumns = columns.map(c => c.replace("_", ' '));
 
-
             thead.append("tr").selectAll("th")
-                .data(normalizedColumns).enter().append("th").text(function (d) { return d; }).on("click", function (header, i) {
+                .data(normalizedColumns).enter().append("th").text(function (d) {
+                return d;
+            }).on("click", function (header, i) {
 
-                    d3.select("img").remove();
+                d3.select("img").remove();
 
-                    if (header == curr_header) {
-                        cnt++;
+                if (header == curr_header) {
+                    cnt++;
 
-                        if (cnt % 2 == 1) {
-                            d3.select(this).append('img').attr('src', '2.png');
-                            d3.select(this).style("cursor", "n-resize");
-                            tbody.selectAll("tr").sort(function (a, b) {
-                                if (header == 'continent') {
+                    if (cnt % 2 == 1) {
+                        d3.select(this).append('img').attr('src', '2.png');
+                        d3.select(this).style("cursor", "n-resize");
+                        tbody.selectAll("tr").sort(function (a, b) {
+                            if (header == 'continent') {
 
-                                    return d3.ascending(a[header] + a['name'], b[header] + b['name']);
-                                }
-                                return d3.ascending(a[header], b[header]);
-                            });
+                                return d3.ascending(a[header] + a['name'], b[header] + b['name']);
+                            }
+                            return d3.ascending(a[header], b[header]);
+                        });
 
-                        }
-                        else {
-                            d3.select(this).append('img').attr('src', '1.png');
-
-                            tbody.selectAll("tr").sort(function (a, b) {
-                                if (header == 'continent') {
-                                    return d3.descending(a[header] + a['name'], b[header] + b['name']);
-                                }
-
-                                return d3.descending(a[header], b[header]);
-                            });
-                        }
                     }
-
                     else {
-
                         d3.select(this).append('img').attr('src', '1.png');
-                        cnt = 0;
-                        curr_header = header;
+
                         tbody.selectAll("tr").sort(function (a, b) {
                             if (header == 'continent') {
                                 return d3.descending(a[header] + a['name'], b[header] + b['name']);
                             }
+
                             return d3.descending(a[header], b[header]);
                         });
                     }
+                }
 
-                });
+                else {
+
+                    d3.select(this).append('img').attr('src', '1.png');
+                    cnt = 0;
+                    curr_header = header;
+                    tbody.selectAll("tr").sort(function (a, b) {
+                        if (header == 'continent') {
+                            return d3.descending(a[header] + a['name'], b[header] + b['name']);
+                        }
+                        return d3.descending(a[header], b[header]);
+                    });
+                }
+
+            });
 
 
-            switch (viewType){
+            switch (viewType) {
                 case "table":
                     table.style('display', "table");
                     svg.style('display', "none");
@@ -312,10 +337,8 @@ d3.json(years_files, function (errorYears, yearsData) {
             }
         }
 
-        
+
         update();
 
     });
 })
-
-
