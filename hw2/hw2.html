@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+
+<body>
+    <style>
+        table {
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid gray;
+        }
+
+
+
+        tbody tr:nth-child(odd) {
+             background-color: #a6d8c8;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #DCDCDC;
+        }
+
+
+        tbody tr:hover {
+            background-color: cadetblue;
+            color: #000000;
+        }
+
+
+
+        table {
+            background-color: #DCDCDC;
+        }
+
+
+
+
+        thead th,
+        tfoot th {
+            font-family: bold;
+        }
+
+        th {
+            letter-spacing: 2px;
+        }
+
+        td {
+            letter-spacing: 1px;
+        }
+
+        tbody td {
+            text-align: center;
+        }
+
+        tfoot th {
+            text-align: right;
+        }
+
+        table td {
+            border: 1px solid black;
+        }
+
+
+        table th {
+            border: 1px solid black;
+            height: 35px;
+            font-family: sans-serif;
+            font-weight: 700;
+        }
+
+        img {
+            position: relative;
+            left: 3px;
+            height: 10px;
+            top: 1px;
+            width: 12px;
+            cursor: pointer
+        }
+
+    </style>
+
+
+
+    <label>Time update:</label>
+    <span class="min-year-value"></span>
+    <input class="range-selector" type="range" name="points" step="1" value="0" id="slider-time" oninput=";">
+    <span class="max-year-value"></span>
+    <br>
+    <label>Filter by:</label>
+    <input type="checkbox" class="myCheckbox" value="Americas"> Americas
+    <input type="checkbox" class="myCheckbox" value="Africa"> Africa
+    <input type="checkbox" class="myCheckbox" value="Asia"> Asia
+    <input type="checkbox" class="myCheckbox" value="Europe"> Europe
+    <input type="checkbox" class="myCheckbox" value="Oceania"> Oceania
+    <br>
+    <label>Aggregation:</label>
+    <label>None<input class="agg-selector" checked='true' type="radio" name="details" value="none" onclick=""></label>
+    <label>by Continent<input  class="agg-selector" type="radio" name="details" value="byCont" onclick=""></label>
+
+    <script src="http://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <script src="hw2.js"></script>
+
+</body>
+
+</html>
