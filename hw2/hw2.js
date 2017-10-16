@@ -15,7 +15,7 @@ d3.json(years_files, function (errorYears, yearsData) {
 
         var maxYear, minYear;
 
-        // ultra HARD year finder
+        
         yearsData.forEach(function (countryModel) {
             countryModel.years.forEach(function (model) {
                 if (model.year > maxYear || !maxYear) {
