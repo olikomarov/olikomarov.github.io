@@ -15,6 +15,7 @@
 
 ## Part4
 ### Question4.1
+"Years" is an array of objects and each object has attibutes: gdp,population,life expectancy, year and top partners.
 
 ## Part5
 ### Question5.1
