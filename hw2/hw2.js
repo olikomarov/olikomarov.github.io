@@ -64,14 +64,27 @@ d3.json(years_files, function (errorYears, yearsData) {
         var viewType = 'name';
         var barsEncode = 'population';
 
-        var margin = {top: 50, bottom: 10, left: 300, right: 40};
-        var width = 900 - margin.left - margin.right;
-        var height = 900 - margin.top - margin.bottom;
+        var margin = { top: 20, right: 20, bottom: 30, left: 180 },
+            width = 1280 - margin.left - margin.right,
+            height = 1500 - margin.top - margin.bottom;
+
+        var y = d3.scaleBand()
+            .range([height, 0])
+            .padding(0.1);
+
+        var x = d3.scaleLinear()
+            .range([0, width]);
 
 
-        var svg = d3.select("body").append("svg")
+        var svg = d3.select("body")
+            .append("div")
+            .attr("class", "wrap")
+            .append("svg")
             .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom);
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
 
 
         function setAgg() {
@@ -89,7 +102,7 @@ d3.json(years_files, function (errorYears, yearsData) {
 
             d3.select('thead').remove();
             d3.select('tbody').remove();
-            d3.selectAll('svg > g').remove();
+
 
             thead = table.append("thead")
                 .attr("class", "thead");
@@ -194,7 +207,7 @@ d3.json(years_files, function (errorYears, yearsData) {
             }
 
             resultData = resultData.sort(function (a, b) {
-                return d3.ascending(a[sortType], b[sortType]);
+                return d3.descending(a[sortType], b[sortType]);
             });
 
 
@@ -229,100 +242,95 @@ d3.json(years_files, function (errorYears, yearsData) {
             cells.exit().remove();
 
 
-            var xScale = d3.scaleLinear().range([0, width]);
-            var yScale = d3.scaleBand().rangeRound([0, height], .8, 0);
+            d3.selectAll('svg > g > rect').remove();
+            d3.selectAll('svg > g > g').remove();
 
-
-            var max = d3.max(resultData, function (d) {
+            x.domain([0, d3.max(resultData, function (d) {
                 return d[barsEncode];
-            });
-            var min = 0;
-
-            xScale.domain([min, max]);
-            yScale.domain(resultData.map(function (d) {
+            })])
+            y.domain(resultData.map(function (d) {
                 return d.name;
             }));
 
-            var g = svg.append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-            var groups = g.append("g")
-                .selectAll("text")
+            svg.selectAll(".bar")
                 .data(resultData)
-                .enter()
-                .append("g");
-
-         /*   groups.append("text")
-                .text(d => d.name)
-                .attr("x", xScale(min) - 200)
-                .attr("y", function (d) {
-                    return yScale(d.name);
-                });
-*/
-
-            var bars = groups
-                .append("rect")
-                .attr("width", function (d) {
-                    return xScale(d[barsEncode]);
+                .enter().append("rect")
+                .attr("class", "bar")
+                .attr("fill", function (d) {
+                    return "rgb( " + (getRandomArbitrary(0, 160)) + " ," + (getRandomArbitrary(0, 160)) + " , " + (getRandomArbitrary(0, 160)) + " )"
                 })
-                .attr("height", 5)
-                .attr("x", xScale(min))
                 .attr("y", function (d) {
-                    return yScale(d.name);
+                    return y(d.name);
+                })
+                .attr("height", y.bandwidth())
+                .transition()
+                .ease(d3.easePoly)
+                .duration(2000)
+                .attr("width", function (d) {
+                    return x(d[barsEncode]);
                 });
 
+
+            // add the x Axis
+            svg.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x));
+
+            // add the y Axis
+            svg.append("g")
+                .call(d3.axisLeft(y));
 
             var normalizedColumns = columns.map(c => c.replace("_", ' '));
 
             thead.append("tr").selectAll("th")
                 .data(normalizedColumns).enter().append("th").text(function (d) {
-                return d;
-            }).on("click", function (header, i) {
+                    return d;
+                }).on("click", function (header, i) {
 
-                d3.select("img").remove();
+                    d3.select("img").remove();
 
-                if (header == curr_header) {
-                    cnt++;
+                    if (header == curr_header) {
+                        cnt++;
 
-                    if (cnt % 2 == 1) {
-                        d3.select(this).append('img').attr('src', '2.png');
-                        d3.select(this).style("cursor", "n-resize");
-                        tbody.selectAll("tr").sort(function (a, b) {
-                            if (header == 'continent') {
+                        if (cnt % 2 == 1) {
+                            d3.select(this).append('img').attr('src', '2.png');
+                            d3.select(this).style("cursor", "n-resize");
+                            tbody.selectAll("tr").sort(function (a, b) {
+                                if (header == 'continent') {
 
-                                return d3.ascending(a[header] + a['name'], b[header] + b['name']);
-                            }
-                            return d3.ascending(a[header], b[header]);
-                        });
+                                    return d3.ascending(a[header] + a['name'], b[header] + b['name']);
+                                }
+                                return d3.ascending(a[header], b[header]);
+                            });
 
+                        }
+                        else {
+                            d3.select(this).append('img').attr('src', '1.png');
+
+                            tbody.selectAll("tr").sort(function (a, b) {
+                                if (header == 'continent') {
+                                    return d3.descending(a[header] + a['name'], b[header] + b['name']);
+                                }
+
+                                return d3.descending(a[header], b[header]);
+                            });
+                        }
                     }
-                    else {
-                        d3.select(this).append('img').attr('src', '1.png');
 
+                    else {
+
+                        d3.select(this).append('img').attr('src', '1.png');
+                        cnt = 0;
+                        curr_header = header;
                         tbody.selectAll("tr").sort(function (a, b) {
                             if (header == 'continent') {
                                 return d3.descending(a[header] + a['name'], b[header] + b['name']);
                             }
-
                             return d3.descending(a[header], b[header]);
                         });
                     }
-                }
 
-                else {
-
-                    d3.select(this).append('img').attr('src', '1.png');
-                    cnt = 0;
-                    curr_header = header;
-                    tbody.selectAll("tr").sort(function (a, b) {
-                        if (header == 'continent') {
-                            return d3.descending(a[header] + a['name'], b[header] + b['name']);
-                        }
-                        return d3.descending(a[header], b[header]);
-                    });
-                }
-
-            });
+                });
 
 
             switch (viewType) {
@@ -341,4 +349,12 @@ d3.json(years_files, function (errorYears, yearsData) {
         update();
 
     });
+
+
+
 })
+
+
+function getRandomArbitrary(min, max) {
+    return Math.round(Math.random() * (max - min) + min);
+}
