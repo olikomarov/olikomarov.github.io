@@ -2,8 +2,10 @@
 
 ## Part1
 ### Question1.1
+DOM inspector содержит множество интсрументов для дебага.
 
 ### Question1.2
+D3 модуль парсит json (countries_1995_2012.json либо countries_2012.json), данные записываются в массив, d3 создает тэги в документ, которые уже отображается браузером.
 
 ## Part2
 ### Question2.1
@@ -46,12 +48,19 @@ Limitations of visualisation:
 ### Question7.4
 
 ### Question7.5
+Which relationships are defined for two attributes of ( a ) quantitative, ( b ) categorical, or ( c ) ordinal scale
+1. Quantitative - to compare and to sort values
+2. Categorical - to group, to filter and to sort values
+3. Ordinal scale - to group and sort values
 
 ### Question7.6
 An associative variable allows grouping across changes in the variable. 
 Examples:
+1. Continent
+2. Country
+2. Sex
 
 ### Question7.7
 Quantitative visual variables:
 1. Size
-2. 
+2. Weight
