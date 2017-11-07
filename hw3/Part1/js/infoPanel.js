@@ -25,16 +25,16 @@ class InfoPanel {
         d3.select('#host').text(oneWorldCup.host);
         d3.select('#winner').text(oneWorldCup.winner);
         d3.select('#silver').text(oneWorldCup.runner_up);
-        var teams = d3.select('#teams')
-            .selectAll("li")
-            .remove()
+        var team = d3.select("#teams")
+            .slectAll('li')
             .data(oneWorldCup.teams_names);
 
         teams.enter()
-            .append("li")
-            .text(d => d)
-            .exit();
-   
+             .append("li")
+            .text(d=>d);
+
+        teams.exit().remove();
+           
 
 
     }
