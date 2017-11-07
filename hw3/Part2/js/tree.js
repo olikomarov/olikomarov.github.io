@@ -22,14 +22,14 @@ class Tree {
         //Create a tree and give it a size() of 800 by 300. 
         this.treeLayout = d3.tree()
             .size([800, 300]);
-
+        //Create a root for the tree using d3.stratify(); 
         this.data = d3.stratify()
             .id(function (d, i) { return i; })
             .parentId(function (d) { return d.ParentGame; })
             (treeData);
 
 
-        //Create a root for the tree using d3.stratify(); 
+
 
         var nodes = d3.hierarchy(this.data, function (d) {
             return d.children;
@@ -98,9 +98,13 @@ class Tree {
         // ******* TODO: PART VII *******
         this.clearTree();
         this.nodeSelection.filter(d=>{
+            //Дописать реализацию для выделения матчей 1/8 чм.
+
             return d.parent && d.parent.data.data.Team == row.key && d.data.data.Team == d.parent.data.data.Team || d.data.data.Team == row.key;
         }).classed('selected', true);
         this.linkSelection.filter(d=>{
+            //Дописать реализацию для выделения матчей 1/8 чм.
+            
             return d.parent.data.data.Team == d.data.data.Team && row.key == d.data.data.Team ;
         }).classed('selected', true);
 

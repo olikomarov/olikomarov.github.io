@@ -54,7 +54,45 @@ class Table {
 
         this.ui.$tableBody = d3.select('#matchTable > tbody');
 
-        d3.select('#TeamNameSort')
+       
+
+    }
+
+
+    /**
+     * Creates a table skeleton including headers that when clicked allow you to sort the table by the chosen attribute.
+     * Also calculates aggregate values of goals, wins, losses and total games as a function of country.
+     *
+     */
+    createTable() {
+
+        // ******* TODO: PART II *******
+
+        //Update Scale Domains
+        let width = this.ui.$goalHeader.property('clientWidth')
+        // Create the x axes for the goalScale.
+
+
+        var goalScale = d3.scaleBand().rangeRound([0, width]);
+        var goalsMax = d3.max(this.teamData, d => d.value["Goals Made"]);
+        goalScale.domain(d3.range(0, goalsMax + 1));
+        let axisX = d3.axisBottom(goalScale).tickValues(d3.range(0, goalsMax + 1, 2));
+
+        this.ui.$goalHeader
+            .call(axisX);
+
+        this.goalScale = goalScale;
+
+        
+        //add GoalAxis to header of col 1.
+
+        // ******* TODO: PART V *******
+
+        // Set sorting callback for clicking on headers
+
+        // Clicking on headers should also trigger collapseList() and updateTable(). 
+
+ d3.select('#TeamNameSort')
             .on('click', e => {
                 this.collapseList();
 
@@ -180,43 +218,6 @@ class Table {
                 }
             });
 
-
-    }
-
-
-    /**
-     * Creates a table skeleton including headers that when clicked allow you to sort the table by the chosen attribute.
-     * Also calculates aggregate values of goals, wins, losses and total games as a function of country.
-     *
-     */
-    createTable() {
-
-        // ******* TODO: PART II *******
-
-        //Update Scale Domains
-        let width = this.ui.$goalHeader.property('clientWidth')
-        // Create the x axes for the goalScale.
-
-
-        var goalScale = d3.scaleBand().rangeRound([0, width]);
-        var goalsMax = d3.max(this.teamData, d => d.value["Goals Made"]);
-        goalScale.domain(d3.range(0, goalsMax + 1));
-        let axisX = d3.axisBottom(goalScale).tickValues(d3.range(0, goalsMax + 1, 2));
-
-        this.ui.$goalHeader
-            .call(axisX);
-
-        this.goalScale = goalScale;
-
-        //add GoalAxis to header of col 1.
-
-        // ******* TODO: PART V *******
-
-        // Set sorting callback for clicking on headers
-
-        // Clicking on headers should also trigger collapseList() and updateTable(). 
-
-
     }
 
 
@@ -238,6 +239,8 @@ class Table {
         let new_rows = rows.enter()
             .append('tr')
             .on("click", (d) => {
+                // Здесь добавить обработку при шелчке на игру в 1/8 чм
+
                 if (d.value.type == 'aggregate') {
                     this.tableElements.forEach((elem, i) => {
                         if (d.key === elem.key) {
