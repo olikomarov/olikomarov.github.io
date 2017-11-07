@@ -31,6 +31,7 @@ class InfoPanel {
 
         teams.enter()
              .append("li")
+             .sort( d3.ascending )
             .text(d=>d);
 
         teams.exit().remove();
