@@ -44,7 +44,6 @@ class BarChart {
         var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
             y = d3.scaleLinear().rangeRound([height, 0]);
 
-
         var g = svg.select("#bars")
             .attr("transform", "translate(" + margin.left + ", 0)");
 
@@ -105,10 +104,6 @@ class BarChart {
 
                 this.infoPanel && this.infoPanel.updateInfo(this.selectedModel);
                 this.worldMap && this.worldMap.updateMap(this.selectedModel);
-
-
-
-
             })
             .exit()
             .remove();
@@ -117,7 +112,7 @@ class BarChart {
             .duration(400)
             .attr("height", function (d) { return height - y(d[selectedDimension]); })
             .attr("y", function (d) { return y(d[selectedDimension]); })
-            .attr("fill", (d) => `rgba(50, 50, ${Math.round(200 - (130 / maxDimensionValue) * d[selectedDimension]) + 35}, 1)`)
+            .attr("fill", (d) => `rgba(50, 50, ${Math.round(200 - (130 / maxDimensionValue) * d[selectedDimension]) + 35}, 1)`);
 
 
 
