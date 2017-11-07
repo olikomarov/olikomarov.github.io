@@ -26,7 +26,7 @@ class InfoPanel {
         d3.select('#winner').text(oneWorldCup.winner);
         d3.select('#silver').text(oneWorldCup.runner_up);
         var team = d3.select("#teams")
-            .slectAll('li')
+            .selectAll('li')
             .data(oneWorldCup.teams_names);
 
         teams.enter()
