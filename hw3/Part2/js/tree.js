@@ -99,11 +99,20 @@ class Tree {
         this.clearTree();
         this.nodeSelection.filter(d=>{
             //Дописать реализацию для выделения матчей 1/8 чм.
+            if (row.value.Result.label != 'Group' && row.value.type == 'game'){
+                let oponents = row.unique.split('-');
 
+                return d.data.data && ( d.data.data.Team == oponents[0] && d.data.data.Opponent == oponents[1] || d.data.data.Team == oponents[1] && d.data.data.Opponent == oponents[0]);
+            }
             return d.parent && d.parent.data.data.Team == row.key && d.data.data.Team == d.parent.data.data.Team || d.data.data.Team == row.key;
-        }).classed('selected', true);
+        }).classed('selectedLabel', true);
         this.linkSelection.filter(d=>{
-            //Дописать реализацию для выделения матчей 1/8 чм.
+           //Дописать реализацию для выделения матчей 1/8 чм.
+            if (row.value.Result.label != 'Group' && row.value.type == 'game'){
+                let oponents = row.unique.split('-');
+
+                return d.data.data && ( d.data.data.Team == oponents[0] && d.data.data.Opponent == oponents[1] || d.data.data.Team == oponents[1] && d.data.data.Opponent == oponents[0]);
+            }
             
             return d.parent.data.data.Team == d.data.data.Team && row.key == d.data.data.Team ;
         }).classed('selected', true);
@@ -115,7 +124,7 @@ class Tree {
      */
     clearTree() {
         // ******* TODO: PART VII *******
-        this.nodeSelection.classed('selected', false);
+        this.nodeSelection.classed('selectedLabel', false);
         this.linkSelection.classed('selected', false);
 
         // You only need two lines of code for this! No loops! 

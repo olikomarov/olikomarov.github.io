@@ -54,7 +54,7 @@ class Table {
 
         this.ui.$tableBody = d3.select('#matchTable > tbody');
 
-       
+
 
     }
 
@@ -83,7 +83,7 @@ class Table {
 
         this.goalScale = goalScale;
 
-        
+
         //add GoalAxis to header of col 1.
 
         // ******* TODO: PART V *******
@@ -92,7 +92,7 @@ class Table {
 
         // Clicking on headers should also trigger collapseList() and updateTable(). 
 
- d3.select('#TeamNameSort')
+        d3.select('#TeamNameSort')
             .on('click', e => {
                 this.collapseList();
 
@@ -104,7 +104,7 @@ class Table {
                 }
 
                 this.tableElements = this.tableElements.sort((a, b) => {
-                    return this.sort === 'Name_A' ? a.key.localeCompare(b.key, "en") : b.key.localeCompare(a.key, "en");
+                    return this.sort === 'Name_A' ? d3.ascending(a.key,b.key): d3.descending(a.key, b.key);
                 })
                 this.updateTable();
                 if (this.selected) {
@@ -129,7 +129,7 @@ class Table {
                 }
 
                 this.tableElements = this.tableElements.sort((a, b) => {
-                    return this.sort === 'GoalsSort_A' ? a.value["Goals Made"] < b.value["Goals Made"] : a.value["Goals Made"] > b.value["Goals Made"];
+                    return this.sort === 'GoalsSort_A' ?  d3.ascending( +a.value["Goals Made"], +b.value["Goals Made"] ):  d3.descending( +a.value["Goals Made"], +b.value["Goals Made"]);
                 })
                 this.updateTable();
                 if (this.selected) {
@@ -154,7 +154,7 @@ class Table {
                 }
 
                 this.tableElements = this.tableElements.sort((a, b) => {
-                    return this.sort === 'WinsSort_A' ? a.value["Wins"] < b.value["Wins"] : a.value["Wins"] > b.value["Wins"];
+                    return this.sort === 'WinsSort_A' ?  d3.ascending( a.value["Wins"], b.value["Wins"]) :  d3.descending( a.value["Wins"], b.value["Wins"]);
                 })
                 this.updateTable();
                 if (this.selected) {
@@ -179,7 +179,7 @@ class Table {
                 }
 
                 this.tableElements = this.tableElements.sort((a, b) => {
-                    return this.sort === 'LosesSort_A' ? a.value["Losses"] < b.value["Losses"] : a.value["Losses"] > b.value["Losses"];
+                    return this.sort === 'LosesSort_A' ?  d3.ascending( a.value["Losses"], b.value["Losses"]) :  d3.descending( a.value["Losses"], b.value["Losses"]);
                 })
                 this.updateTable();
                 if (this.selected) {
@@ -205,7 +205,7 @@ class Table {
                 }
 
                 this.tableElements = this.tableElements.sort((a, b) => {
-                    return this.sort === 'TotalSort_A' ? a.value["TotalGames"] < b.value["TotalGames"] : a.value["TotalGames"] > b.value["TotalGames"];
+                    return this.sort === 'TotalSort_A' ?  d3.ascending( a.value["TotalGames"], b.value["TotalGames"]) :  d3.descending( a.value["TotalGames"], b.value["TotalGames"]);
                 })
                 this.updateTable();
                 if (this.selected) {
@@ -240,6 +240,9 @@ class Table {
             .append('tr')
             .on("click", (d) => {
                 // Здесь добавить обработку при шелчке на игру в 1/8 чм
+                if (d.value.type == 'game') {
+                    this.tree.updateTree(d)
+                }
 
                 if (d.value.type == 'aggregate') {
                     this.tableElements.forEach((elem, i) => {
@@ -259,22 +262,22 @@ class Table {
             rows.sort((a, b) => {
                 switch (this.sort) {
                     case 'Name_A':
-                        return a.key.localeCompare(b.key, "en");
+                        return  d3.ascending( a.key, b.key);
 
                     case 'Name_D':
-                        return b.key.localeCompare(a.key, "en");
+                        return  d3.descending(a.key, b.key);
                     case "LosesSort_A":
                     case "LosesSort_D":
-                        return this.sort === 'LosesSort_A' ? a.value["Losses"] < b.value["Losses"] : a.value["Losses"] > b.value["Losses"];
+                        return (this.sort === 'LosesSort_A' ? d3.ascending(  a.value["Losses"] , b.value["Losses"]) :  d3.descending( a.value["Losses"], b.value["Losses"]));
                     case "GoalsSort_A":
                     case "GoalsSort_D":
-                        return this.sort === 'GoalsSort_A' ? a.value["Goals Made"] < b.value["Goals Made"] : a.value["Goals Made"] > b.value["Goals Made"];
+                        return this.sort === 'GoalsSort_A' ?   d3.ascending( a.value["Goals Made"], b.value["Goals Made"]) : d3.descending(  a.value["Goals Made"], b.value["Goals Made"]);
                     case "WinsSort_A":
                     case "WinsSort_D":
-                        return this.sort === 'WinsSort_A' ? a.value["Wins"] < b.value["Wins"] : a.value["Wins"] > b.value["Wins"];
+                        return this.sort === 'WinsSort_A' ? d3.ascending(  a.value["Wins"] , b.value["Wins"]) : d3.descending(  a.value["Wins"] , b.value["Wins"]);
                     case "TotalSort_A":
                     case "TotalSort_B":
-                        return this.sort === 'TotalSort_A' ? a.value["TotalGames"] < b.value["TotalGames"] : a.value["TotalGames"] > b.value["TotalGames"];
+                        return this.sort === 'TotalSort_A' ? d3.ascending(  a.value["TotalGames"] , b.value["TotalGames"]) : d3.descending(  a.value["TotalGames"], b.value["TotalGames"]);
 
                 }
 
@@ -286,7 +289,7 @@ class Table {
         var cells = new_rows.selectAll('td')
             .data(row => [
                 { type: row.value.type, value: [row.key], vis: 'team_name' },
-                { type: row.value.type, value: [row.value["Goals Made"], row.value["Goals Conceded"]], vis: 'goals' },
+                { type: row.value.type, value: [+row.value["Goals Made"], +row.value["Goals Conceded"]], vis: 'goals' },
                 { type: row.value.type, value: [row.value.Result.label], vis: 'round_result' },
                 { type: row.value.type, value: [row.value.Wins], vis: 'wins' },
                 { type: row.value.type, value: [row.value.Losses], vis: 'loses' },
@@ -312,11 +315,19 @@ class Table {
 
 
         var g;
+
+        var maxWins = d3.max(this.teamData, d => d.value.Wins) + 1;
+        var maxLosses = d3.max(this.teamData, d => d.value.Losses) + 1;
+        var maxTotalGames = d3.max(this.teamData, d => d.value.TotalGames) + 1;
+
+        var max = d3.max([maxWins, maxLosses, maxTotalGames]);
+
         var xScale = d3.scaleBand().rangeRound([0, width])
         var colorScale = d3.scaleLinear()
-            .domain(0, width)
+            .domain([1, max])
             .interpolate(d3.interpolateHcl)
-            .range([d3.rgb("#ece2f0"), d3.rgb('#016450')]);
+            .range([d3.rgb("#ECE2F0"), d3.rgb('#016450')]);
+
 
         // Goals statistics
 
@@ -326,47 +337,51 @@ class Table {
             .attr('height', height)
             .append('g');
 
+        g.attr('class', d => d.type);
 
         g.append("rect")
-            .attr("fill", d => d.value[0] - d.value[1] < 0 ? "#e07477" : "#6794af")
+            .attr("class", d => d.value[0] - d.value[1] < 0 ? "negative" : "positive")
             .attr("width", d => {
                 let minMax = d3.extent(d.value);
+                if (d.type == 'game') {
+                    return this.goalScale(minMax[1] - minMax[0]) - 9;
+                }
+
                 return this.goalScale(minMax[1] - minMax[0]);
             })
-            .attr('x', d => this.goalScale(d3.min(d.value)))
-            .attr("height", 10)
-            .attr("y", 6);
+            .attr('x', d => d.type == 'game' ? this.goalScale(d3.min(d.value)) + 2 : this.goalScale(d3.min(d.value)))
+            .attr("y", d => d.type == 'game' ? 9 : 6);
 
 
         g.append("circle")
-            .attr("fill", d => d3.max(d.value) == d.value[0] ? '#cb181d' : '#034e7b')
-            .attr("r", 6)
+            .attr("class", d => d3.max(d.value) == d.value[0] ? 'negative' : 'positive')
+            .attr("r", d => d.type == 'game' ? 4 : 6)
             .attr('cx', d => this.goalScale(d3.min(d.value)))
             .attr("cy", 11);
 
         g.append("circle")
-            .attr("fill", d => d3.max(d.value) == d.value[1] ? '#cb181d' : '#034e7b')
-            .attr("r", 6)
-            .attr('cx', d => this.goalScale(d3.max(d.value)) + 6.5)
+            .attr("class", d => d3.max(d.value) == d.value[1] ? 'negative' : 'positive')
+            .attr("r", d => d.type == 'game' ? 4 : 6)
+            .attr('cx', d => d.type == 'game' ? this.goalScale(d3.max(d.value)) + 3.5 : this.goalScale(d3.max(d.value)) + 6.5)
             .attr("cy", 11);
 
 
-        g = new_cells.filter(d => d.vis == 'goals' && d.value[0] - d.value[1] == 0)
+        g = new_cells.filter(d => d.vis == 'goals' && +d.value[0] - +d.value[1] == 0)
             .append('svg')
             .attr('width', this.ui.$goalHeader.property('clientWidth'))
             .attr('height', height)
             .append('g');
-
+            
+        g.attr('class', d => d.type);
         g.append("circle")
-            .attr("fill", 'gray')
-            .attr("r", 6)
+            .attr("class", 'draw')
+               .attr("r", d => d.type == 'game' ? 4 : 6)
             .attr('cx', d => this.goalScale(d3.min(d.value)))
             .attr("cy", 11);
 
         // Games statistics
 
-        xScale.domain(d3.range(0, d3.max(this.teamData, d => d.value.Wins) + 1));
-
+        xScale.domain(d3.range(0, maxWins));
 
         g = new_cells.filter(d => d.vis == 'wins')
             .append('svg')
@@ -375,7 +390,7 @@ class Table {
             .append('g');
 
         g.append("rect")
-            .attr("fill", d => colorScale(xScale(d.value[0])))
+            .attr("fill", d => colorScale(d.value[0]))
             .attr("width", function (d) { return xScale(d.value[0]); })
             .attr("height", height);
 
@@ -389,7 +404,7 @@ class Table {
 
 
 
-        xScale.domain(d3.range(0, d3.max(this.teamData, d => d.value.Losses) + 1));
+        xScale.domain(d3.range(0, maxWins));
 
         g = new_cells.filter(d => d.vis == 'loses')
             .append('svg')
@@ -398,7 +413,7 @@ class Table {
             .append('g');
 
         g.append("rect")
-            .attr("fill", d => colorScale(xScale(d.value[0])))
+            .attr("fill", d => colorScale(d.value[0]))
             .attr("width", function (d) { return xScale(d.value[0]); })
             .attr("height", height);
 
@@ -411,7 +426,7 @@ class Table {
             .text(d => d.value[0]);
 
 
-        xScale.domain(d3.range(0, d3.max(this.teamData, d => d.value.TotalGames) + 1));
+        xScale.domain(d3.range(0, maxTotalGames));
 
 
         g = new_cells.filter(d => d.vis == 'total_games')
@@ -421,7 +436,7 @@ class Table {
             .append('g');
 
         g.append("rect")
-            .attr("fill", d => colorScale(xScale(d.value[0])))
+            .attr("fill", d => colorScale(d.value[0]))
             .attr("width", function (d) { return xScale(d.value[0]); })
             .attr("height", height);
 
