@@ -4,27 +4,23 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
-let loadData = new Promise((resolve, reject) => {
-    d3.csv("data/group_connections.csv", function (error1, groups_relations) {
+var loadData = new Promise((resolve, reject) => {
+    d3.csv("data/group_connections.csv", function (error1, groups_users_relations) {
         d3.csv("data/top400_info.csv", function (error2, groups_data) {
+            d3.json("data/group_relations.json", function (error3, groups_relations) {
 
-            let resultDataSet = groups_data.map((group) => {
-                group.key = group._id,
-                    relations = [];
+                var resultDataSet = groups_data.map((group) => {
 
-                for (i = 0; i < getRandomInt(0, groups_data.length - 1); i++) {
-                    relations.push(groups_data[getRandomInt(0, groups_data.length - 1)].key);
-                }
+                    group.key = group._id;
+                    var relInfo = groups_relations.find(rel => rel.key == group._id);
 
-                // Закоментируй это чтобы отключить рандом
-                //return { ...group, relations };
+                    return { ...group, relations: relInfo.relations };
+                })
 
-                // Раскоментируй это чтобы получить вывод данных из файла отношений
-                return { ...group, relations: distinct((groups_relations.filter(relation => relation.group1 == group.key)).map(r => r.group2)) };
-            })
+                //resultDataSet = resultDataSet.filter((em, id) => id < 10)
+                resolve(resultDataSet);
 
-            //resultDataSet = resultDataSet.filter((em, id) => id < 10)
-            resolve(resultDataSet);
+            });
         });
     });
 });
@@ -61,7 +57,7 @@ var bundle = d3.layout.bundle();
 
 var line = d3.svg.line.radial()
     .interpolate("bundle")
-    .tension(.65)
+    .tension(.70)
     .radius(function (d) { return d.y; })
     .angle(function (d) { return d.x / 180 * Math.PI; });
 
@@ -91,7 +87,8 @@ svg.append("svg:path")
 ///
 var groupInfoContainer = d3.select("body").append("div")
     .style("display", "inline-block")
-    .style("vertical-align", "top");
+    .style("vertical-align", "top")
+    .style("font-size", "16px");
 
 groupInfoContainer.append("img")
     .style("display", "block")
