@@ -5,19 +5,37 @@ function getRandomInt(min, max) {
 }
 
 var loadData = new Promise((resolve, reject) => {
-    d3.csv("data/group_connections.csv", function (error1, groups_users_relations) {
+    d3.csv("data/group_connections_weight.csv", function (error1, groups_users_relations) {
+
+
         d3.csv("data/top400_info.csv", function (error2, groups_data) {
             d3.json("data/group_relations.json", function (error3, groups_relations) {
 
+                var a = groups_users_relations;
                 var resultDataSet = groups_data.map((group) => {
 
                     group.key = group._id;
                     var relInfo = groups_relations.find(rel => rel.key == group._id);
 
+                    group.usersCount = 0;
+
+                    groups_users_relations.filter(item => item.id == group.key)
+                        .forEach((elem) => group.usersCount += (+elem["common bank users"]));
+
+
                     return { ...group, relations: relInfo.relations };
                 })
 
-                //resultDataSet = resultDataSet.filter((em, id) => id < 10)
+                resultDataSet.forEach(groupData => {
+                    groupData.similarGroups = resultDataSet
+                        .filter((group) => { return (group.usersCount - (groupData.usersCount * 0.05)) <= group.usersCount && group.usersCount <= (groupData.usersCount + (groupData.usersCount * 0.05)) && group.key != groupData.key })
+                        .sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) });
+                })
+
+                resultDataSet = resultDataSet
+                    .sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
+                    .filter((em, id) => id < 100);
+
                 resolve(resultDataSet);
 
             });
@@ -26,21 +44,80 @@ var loadData = new Promise((resolve, reject) => {
 });
 
 
+function createTable(mountSelection, data, titles) {
+
+    var sortAscending = true;
+    var table = mountSelection.append('table');
+
+    var headers = table.append('thead').append('tr')
+        .selectAll('th')
+        .data(titles).enter()
+        .append('th')
+        .text(function (d) {
+            return d.title;
+        })
+        .on('click', function (d) {
+            headers.attr('class', 'header');
+
+            if (sortAscending) {
+                rows.sort((a, b) => {
+                    return d3.ascending(a[d.idx], b[d.idx]);
+                });
+                sortAscending = false;
+                this.className = 'aes';
+            } else {
+                rows.sort((a, b) => {
+                    return d3.descending(a[d.idx], b[d.idx]);
+                });
+
+                sortAscending = true;
+                this.className = 'des';
+            }
+
+        });
 
 
+    var rows = table.append('tbody').selectAll('tr')
+        .data(data)
+        .enter()
+        .append('tr');
+    rows.selectAll('td')
+        .data(function (d) {
+            return titles.map(function (cd) {
+                return { 'value': d[cd.idx], 'name': cd.title };
+            });
+        }).enter()
+        .append('td')
+        .attr('data-th', function (d) {
+            return d.idx;
+        })
+        .text(function (d) {
+            return d.value;
+        });
 
-
-function distinct(array) {
-    var result = {};
-
-    array.forEach(function (item) {
-        result[item] = true;
-    });
-
-    return Object.keys(result);
+    rows.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) });
 }
 
-var w = 1280,
+
+function updateSimilarData(data) {
+    var selection = similarList
+        .selectAll('li')
+        .data(data, d => d.key);
+
+    selection.exit().remove();
+
+    selection.enter()
+        .append('li')
+        .append("a")
+        .attr("href", d => d.link)
+        .text(d => d.name)
+
+
+}
+
+
+
+var w = 1180,
     h = 800,
     rx = w / 2,
     ry = h / 2,
@@ -86,26 +163,44 @@ svg.append("svg:path")
 
 ///
 var groupInfoContainer = d3.select("body").append("div")
+    .attr("class", "sidebar")
     .style("display", "inline-block")
     .style("vertical-align", "top")
-    .style("font-size", "16px");
+    .style("font-size", "16px")
+    .style("padding", "30px")
+    .style("height", "100%");
 
-groupInfoContainer.append("img")
-    .style("display", "block")
+var singleCardInfo = groupInfoContainer
+    .append("div")
+    .style("height", "250px")
+    .style("margin", "0 0 70px 0");
+
+singleCardInfo.append("img")
+    .style("display", "inline-block")
     .attr("id", "group-info-photo");
 
-groupInfoContainer.append('span')
+var containerSider = singleCardInfo.append("div")
+    .style("margin-left", "25px")
+    .style("vertical-align", "top")
+    .style("display", "inline-block");
+
+containerSider.append('span').append('a')
     .attr("id", "group-info-name")
     .style("display", "block")
     .text("Название: ");
 
-groupInfoContainer.append('span')
+containerSider.append('span')
     .style("display", "block")
     .attr("id", "group-info-users-count")
     .text("Кол-во пользователей: ");
 
+var listOfSimilarDiv = containerSider.append("div");
 
+listOfSimilarDiv.append("span")
+    .text("Cхожие группы:");
 
+var similarList = listOfSimilarDiv.attr("class", "simlinks")
+    .append("ul");
 
 loadData.then((data) => {
 
@@ -140,6 +235,18 @@ loadData.then((data) => {
         line.tension(this.value / 100);
         path.attr("d", function (d, i) { return line(splines[i]); });
     });
+
+    createTable(
+        groupInfoContainer,
+        data.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
+            .filter((el, i) => i < 10),
+        [
+            { idx: "name", title: "Название" },
+            { idx: "usersCount", title: "Число подписчиков" },
+            { idx: "dt_create", title: "Год основания" },
+        ]
+    );
+
 
 });
 
@@ -191,9 +298,12 @@ function labelClick(d) {
         .attr('src', d.photo_200);
 
     d3.select('#group-info-name')
+        .attr('href', d.link)
         .text('Название: ' + d.name);
     d3.select('#group-info-users-count')
-        .text('Кол-во пользователей: ', d.count || 0);
+        .text('Кол-во пользователей: ' + d.usersCount || "");
+
+    updateSimilarData(d.similarGroups.filter((el, i) => i < 10));
 }
 
 function mouseover(d) {

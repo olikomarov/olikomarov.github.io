@@ -4,6 +4,23 @@
 
 <head>
 	<style>
+		table {
+			border-collapse: collapse;
+		}
+		td{
+			border: #333333 1px solid;
+			padding-left: 5px;
+			padding-right: 5px;
+		}
+
+		tr{
+			border: #333333 1px solid;
+		}
+
+		th {
+			border: #333333 1px solid;
+		}
+
 		path.arc {
 			cursor: move;
 			fill: #fff;
@@ -50,7 +67,7 @@
 		body {
 			font: 300 36px "Helvetica Neue";
 			margin: 10px 0 0 0;
-			overflow: hidden;
+			/* overflow: hidden; */
 			position: relative;
 
 		}
@@ -161,6 +178,15 @@
 	<script src="https://d3js.org/d3.v3.min.js"></script>
 	<script src="js/groups.js"></script>
 	<script src="js/graph.js"></script>
+
+	<div class="dashboard">
+		<div class="plot"></div>
+		<div class="sidebar">
+			<div class="group-info"></di>
+			<div class="popularity-table"></div>
+		</div>
+	</div>
+	
 </body>
 
 </html>
