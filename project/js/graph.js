@@ -56,7 +56,7 @@ function createTable(mountSelection, data, titles) {
 
     var headder = mountSelection.append('span')
         .attr('class', "table-header")
-        .text("TOP 10 - Most Popular Groups");
+        .text("ТОП 10 ГРУПП ПО ПУЛЯРНОСТИ");
 
     var table = mountSelection.append('table');
 
@@ -333,9 +333,9 @@ loadData.then((data) => {
     drawGraph(rowsData.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) }));
 
     var titles = [
-        { idx: "name", title: "Название" },
-        { idx: "usersCount", title: "Число подписчиков" },
-        { idx: "dt_create", title: "Год основания" },
+        { idx: "name", title: "Group name" },
+        { idx: "usersCount", title: "Amount of followers" },
+        { idx: "dt_create", title: "Year of the 1st post" },
     ];
 
 
@@ -350,7 +350,7 @@ loadData.then((data) => {
 
 
         d3.select("#year-filter-state")
-            .text("Time period: " + filterState.dt_create[0] + "-" + filterState.dt_create[1]);
+            .text("Период выборки: " + filterState.dt_create[0] + "-" + filterState.dt_create[1]);
 
         drawGraph(filteredData);
         updateTable(filteredData.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) }).filter((el, i) => i < 10), titles);
