@@ -4,6 +4,24 @@
 
 <head>
 	<style>
+		table {
+			border-collapse: collapse;
+		}
+
+		td {
+			border: #333333 1px solid;
+			padding-left: 5px;
+			padding-right: 5px;
+		}
+
+		tr {
+			border: #333333 1px solid;
+		}
+
+		th {
+			border: #333333 1px solid;
+		}
+
 		path.arc {
 			cursor: move;
 			fill: #fff;
@@ -31,11 +49,11 @@
 		}
 
 		.node.target {
-			fill: #d62728 !important;
+			fill: #2ca02c !important;
 		}
 
 		.link.source {
-			stroke: #d62728;
+			stroke: #2ca02c;
 		}
 
 		.node.source {
@@ -50,7 +68,7 @@
 		body {
 			font: 300 36px "Helvetica Neue";
 			margin: 10px 0 0 0;
-			overflow: hidden;
+			/* overflow: hidden; */
 			position: relative;
 
 		}
@@ -153,14 +171,28 @@
 			top: -80px;
 			left: -160px;
 		}
+
+		.table-header {
+			font-size: 21px;
+
+			width: 100%;
+			display: block;
+			font-weight: 700;
+			margin-bottom: 20px;
+		}
 	</style>
 
 </head>
 
 <body>
+
+	<link rel="stylesheet" type="text/css" href="js/nouislider.min.css">
+	<script src="js/nouislider.min.js"></script>
 	<script src="https://d3js.org/d3.v3.min.js"></script>
 	<script src="js/groups.js"></script>
 	<script src="js/graph.js"></script>
+
+
 </body>
 
 </html>

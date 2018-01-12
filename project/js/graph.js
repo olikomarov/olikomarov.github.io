@@ -4,20 +4,43 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
 }
 
+var filterState = {
+    dt_create: [2011, 2017]
+}
+
 var loadData = new Promise((resolve, reject) => {
-    d3.csv("data/group_connections.csv", function (error1, groups_users_relations) {
+    d3.csv("data/group_connections_weight.csv", function (error1, groups_users_relations) {
+
+
         d3.csv("data/top400_info.csv", function (error2, groups_data) {
             d3.json("data/group_relations.json", function (error3, groups_relations) {
 
+                var a = groups_users_relations;
                 var resultDataSet = groups_data.map((group) => {
 
                     group.key = group._id;
                     var relInfo = groups_relations.find(rel => rel.key == group._id);
 
+                    group.usersCount = 0;
+                    group.dt_create = +group.dt_create;
+
+                    groups_users_relations.filter(item => item.id == group.key)
+                        .forEach((elem) => group.usersCount += (+elem["common bank users"]));
+
+
                     return { ...group, relations: relInfo.relations };
                 })
 
-                //resultDataSet = resultDataSet.filter((em, id) => id < 10)
+                resultDataSet.forEach(groupData => {
+                    groupData.similarGroups = resultDataSet
+                        .filter((group) => { return (group.usersCount - (groupData.usersCount * 0.05)) <= group.usersCount && group.usersCount <= (groupData.usersCount + (groupData.usersCount * 0.05)) && group.key != groupData.key })
+                        .sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) });
+                })
+
+                resultDataSet = resultDataSet
+                    .sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
+                //.filter((em, id) => id < 100);
+
                 resolve(resultDataSet);
 
             });
@@ -27,20 +50,151 @@ var loadData = new Promise((resolve, reject) => {
 
 
 
+function createTable(mountSelection, data, titles) {
+
+    var sortAscending = true;
+
+    var headder = mountSelection.append('span')
+        .attr('class', "table-header")
+        .text("ТОП 10 ГРУПП ПО ПУЛЯРНОСТИ");
+
+    var table = mountSelection.append('table');
+
+    var headers = table.append('thead').append('tr')
+        .selectAll('th')
+        .data(titles).enter()
+        .append('th')
+        .text(function (d) {
+            return d.title;
+        })
+        .on('click', function (d) {
+            headers.attr('class', 'header');
+
+            if (sortAscending) {
+                rows.sort((a, b) => {
+                    return d3.ascending(a[d.idx], b[d.idx]);
+                });
+                sortAscending = false;
+                this.className = 'aes';
+            } else {
+                rows.sort((a, b) => {
+                    return d3.descending(a[d.idx], b[d.idx]);
+                });
+
+                sortAscending = true;
+                this.className = 'des';
+            }
+
+        });
 
 
+    var rows = table.append('tbody').selectAll('tr')
+        .data(data)
+        .enter()
+        .append('tr');
+    rows.selectAll('td')
+        .data(function (d) {
+            return titles.map(function (cd) {
+                return { 'value': d[cd.idx], 'name': cd.title };
+            });
+        }).enter()
+        .append('td')
+        .attr('data-th', function (d) {
+            return d.idx;
+        })
+        .text(function (d) {
+            return d.value;
+        });
 
-function distinct(array) {
-    var result = {};
-
-    array.forEach(function (item) {
-        result[item] = true;
-    });
-
-    return Object.keys(result);
+    rows.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) });
 }
 
-var w = 1280,
+function updateTable(data, titles) {
+
+    var table = d3.select("tbody")
+
+    table.selectAll('tr')
+        .data(data, d => d.key)
+        .exit()
+        .remove();
+
+    var rows = table.selectAll('tr')
+        .data(data, d => d.key)
+        .enter()
+        .append('tr');
+
+
+    rows.selectAll('td')
+        .data(function (d) {
+            return titles.map(function (cd) {
+                return { 'value': d[cd.idx], 'name': cd.title };
+            }, d => d.value);
+        }).exit()
+        .remove();
+
+    rows.selectAll('td')
+        .data(function (d) {
+            return titles.map(function (cd) {
+                return { 'value': d[cd.idx], 'name': cd.title };
+            }, d => d.value);
+        }).enter()
+        .append('td')
+        .attr('data-th', function (d) {
+            return d.idx;
+        })
+        .text(function (d) {
+            return d.value;
+        });
+
+    table.selectAll('tr').sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) });
+
+    var sortAscending = false;
+
+    var headers = d3.select("thead").select("tr").selectAll("th")
+        .on('click', function (d) {
+            headers.attr('class', 'header');
+
+            if (sortAscending) {
+                table.selectAll('tr').sort((a, b) => {
+                    return d3.ascending(a[d.idx], b[d.idx]);
+                });
+                sortAscending = false;
+                this.className = 'aes';
+            } else {
+                table.selectAll('tr').sort((a, b) => {
+                    return d3.descending(a[d.idx], b[d.idx]);
+                });
+
+                sortAscending = true;
+                this.className = 'des';
+            }
+
+        });
+
+
+
+}
+
+
+function updateSimilarData(data) {
+    var selection = similarList
+        .selectAll('li')
+        .data(data, d => d.key);
+
+    selection.exit().remove();
+
+    selection.enter()
+        .append('li')
+        .append("a")
+        .attr("href", d => d.link)
+        .text(d => d.name)
+
+
+}
+
+
+
+var w = 1180,
     h = 800,
     rx = w / 2,
     ry = h / 2,
@@ -86,39 +240,154 @@ svg.append("svg:path")
 
 ///
 var groupInfoContainer = d3.select("body").append("div")
+    .attr("class", "sidebar")
     .style("display", "inline-block")
     .style("vertical-align", "top")
-    .style("font-size", "16px");
+    .style("font-size", "16px")
+    .style("padding", "30px")
+    .style("height", "100%");
 
-groupInfoContainer.append("img")
-    .style("display", "block")
+var filters = groupInfoContainer.append("div")
+    .style("padding", "30px")
+    .style("margin", "0 0 70px 0");
+
+var filterStateIndicator = filters.append("span")
+    .text("Период выборки: " + (+filterState.dt_create[0]) + "-" + (+filterState.dt_create[1]))
+    .attr('id', "year-filter-state")
+    .style("font-size", "18px")
+
+var corobox = filters.append("div");
+
+
+corobox.append("span")
+    .style("display", "inline-block")
+    .text("2011");
+
+
+
+var dateSlider = corobox.append("div")
+    .style("width", "300px")
+    .style("display", "inline-block")
+    .style("margin-top", "15px")
+    .style("transform", "scale(0.6)")
+    .attr('id', "year-filter");
+
+var sliderComponent = noUiSlider.create(document.getElementById('year-filter'), {
+    start: [2011, 2017],
+
+    connect: true,
+    step: 1,
+    behaviour: 'drag',
+    range: {
+        'min': 2011,
+        'max': 2017
+    }
+});
+
+corobox.append("span")
+    .style("display", "inline-block")
+    .text("2017");
+
+
+
+
+
+var singleCardInfo = groupInfoContainer
+    .append("div")
+    .style("height", "250px")
+    .style("visibility", "hidden")
+    .style("margin", "0 0 70px 0");
+
+singleCardInfo.append("img")
+    .style("display", "inline-block")
     .attr("id", "group-info-photo");
 
-groupInfoContainer.append('span')
+var containerSider = singleCardInfo.append("div")
+    .style("margin-left", "25px")
+    .style("vertical-align", "top")
+    .style("display", "inline-block");
+
+containerSider.append('span').append('a')
     .attr("id", "group-info-name")
     .style("display", "block")
     .text("Название: ");
 
-groupInfoContainer.append('span')
+containerSider.append('span')
     .style("display", "block")
     .attr("id", "group-info-users-count")
     .text("Кол-во пользователей: ");
 
+var listOfSimilarDiv = containerSider.append("div");
 
+listOfSimilarDiv.append("span")
+    .text("Cхожие группы:");
 
+var similarList = listOfSimilarDiv.attr("class", "simlinks")
+    .append("ul");
 
 loadData.then((data) => {
 
+    var rowsData = data.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
+        .filter(el => filterState.dt_create[0] <= el["dt_create"] && el["dt_create"] <= filterState.dt_create[1]);
+
+    drawGraph(rowsData);
+
+    var titles = [
+        { idx: "name", title: "Название" },
+        { idx: "usersCount", title: "Число подписчиков" },
+        { idx: "dt_create", title: "Год основания" },
+    ];
+
+
+    sliderComponent.on('end', function () {
+        var values = sliderComponent.get();
+
+        filterState.dt_create[0] = Math.ceil(+values[0]);
+        filterState.dt_create[1] = Math.ceil(+values[1]);
+
+        var filteredData = data.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
+            .filter(el => filterState.dt_create[0] <= el["dt_create"] && el["dt_create"] <= filterState.dt_create[1]);
+
+
+        d3.select("#year-filter-state")
+            .text("Период выборки: " + filterState.dt_create[0] + "-" + filterState.dt_create[1]);
+
+        drawGraph(filteredData);
+        updateTable(filteredData.filter((el, i) => i < 10), titles)
+    })
+
+    createTable(
+        groupInfoContainer,
+        rowsData.filter((el, i) => i < 10),
+        titles,
+    );
+
+
+});
+
+
+function drawGraph(data) {
 
     var nodes = cluster.nodes(groups.root(data)),
         links = groups.relations(nodes),
         splines = bundle(links);
 
+
+    svg.selectAll("path.link")
+        .data(links, d => d.source.key + ":" + d.target.key)
+        .exit()
+        .remove();
+
     var path = svg.selectAll("path.link")
-        .data(links)
+        .data(links, d => d.source.key + ":" + d.target.key)
         .enter().append("svg:path")
         .attr("class", function (d) { return "link source-" + d.source.key + " target-" + d.target.key; })
         .attr("d", function (d, i) { return line(splines[i]); });
+
+    svg.selectAll("g.node")
+        .data(nodes.filter(function (n) { return !n.children; }))
+        .exit()
+        .remove();
 
     svg.selectAll("g.node")
         .data(nodes.filter(function (n) { return !n.children; }))
@@ -132,8 +401,8 @@ loadData.then((data) => {
         .attr("text-anchor", function (d) { return d.x < 180 ? "start" : "end"; })
         .attr("transform", function (d) { return d.x < 180 ? null : "rotate(180)"; })
         .text(function (d) { return d.name; })
-        .on("mouseover", mouseover)
-        .on("mouseout", mouseout)
+        //.on("mouseover", mouseover)
+        //.on("mouseout", mouseout)
         .on("click", labelClick);
 
     d3.select("input[type=range]").on("change", function () {
@@ -141,7 +410,7 @@ loadData.then((data) => {
         path.attr("d", function (d, i) { return line(splines[i]); });
     });
 
-});
+}
 
 
 d3.select(window)
@@ -186,14 +455,42 @@ function mouseup() {
     }
 }
 
+var prevSelected = {};
+
 function labelClick(d) {
+
+    svg.selectAll("path.link.source-" + prevSelected.key)
+        .classed("source", false)
+        .each(updateNodes("target", false));
+
+    svg.selectAll("path.link.target-" + prevSelected.key)
+        .classed("target", false)
+        .each(updateNodes("source", false));
+
+    svg.selectAll("path.link.target-" + d.key)
+        .classed("target", true)
+        .each(updateNodes("source", true));
+
+    svg.selectAll("path.link.source-" + d.key)
+        .classed("source", true)
+        .each(updateNodes("target", true));
+
+
+    singleCardInfo.style("visibility", "visible");
+
     d3.select('#group-info-photo')
         .attr('src', d.photo_200);
 
     d3.select('#group-info-name')
+        .attr('href', d.link)
         .text('Название: ' + d.name);
     d3.select('#group-info-users-count')
-        .text('Кол-во пользователей: ', d.count || 0);
+        .text('Кол-во пользователей: ' + d.usersCount || "");
+
+    updateSimilarData(d.similarGroups.filter((el, i) => i < 10));
+
+    prevSelected = d;
+
 }
 
 function mouseover(d) {
