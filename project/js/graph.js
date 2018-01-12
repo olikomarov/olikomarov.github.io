@@ -22,10 +22,7 @@ var loadData = new Promise((resolve, reject) => {
                     var relInfo = groups_relations.find(rel => rel.key == group._id);
 
                     group.usersCount = 0;
-<<<<<<< HEAD
                     group.dt_create = +group.dt_create;
-=======
->>>>>>> 19f01043fe2866961d8fe6bea7e48bf190139efa
 
                     groups_users_relations.filter(item => item.id == group.key)
                         .forEach((elem) => group.usersCount += (+elem["common bank users"]));
@@ -42,11 +39,7 @@ var loadData = new Promise((resolve, reject) => {
 
                 resultDataSet = resultDataSet
                     .sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
-<<<<<<< HEAD
                 //.filter((em, id) => id < 100);
-=======
-                    .filter((em, id) => id < 100);
->>>>>>> 19f01043fe2866961d8fe6bea7e48bf190139efa
 
                 resolve(resultDataSet);
 
@@ -56,45 +49,11 @@ var loadData = new Promise((resolve, reject) => {
 });
 
 
+
 function createTable(mountSelection, data, titles) {
 
     var sortAscending = true;
-    var table = mountSelection.append('table');
 
-    var headers = table.append('thead').append('tr')
-        .selectAll('th')
-        .data(titles).enter()
-        .append('th')
-        .text(function (d) {
-            return d.title;
-        })
-        .on('click', function (d) {
-            headers.attr('class', 'header');
-
-            if (sortAscending) {
-                rows.sort((a, b) => {
-                    return d3.ascending(a[d.idx], b[d.idx]);
-                });
-                sortAscending = false;
-                this.className = 'aes';
-            } else {
-                rows.sort((a, b) => {
-                    return d3.descending(a[d.idx], b[d.idx]);
-                });
-
-                sortAscending = true;
-                this.className = 'des';
-            }
-
-<<<<<<< HEAD
-function createTable(mountSelection, data, titles) {
-=======
-        });
->>>>>>> 19f01043fe2866961d8fe6bea7e48bf190139efa
-
-    var sortAscending = true;
-
-<<<<<<< HEAD
     var headder = mountSelection.append('span')
         .attr('class', "table-header")
         .text("ТОП 10 ГРУПП ПО ПУЛЯРНОСТИ");
@@ -216,29 +175,6 @@ function updateTable(data, titles) {
 
 }
 
-=======
-    var rows = table.append('tbody').selectAll('tr')
-        .data(data)
-        .enter()
-        .append('tr');
-    rows.selectAll('td')
-        .data(function (d) {
-            return titles.map(function (cd) {
-                return { 'value': d[cd.idx], 'name': cd.title };
-            });
-        }).enter()
-        .append('td')
-        .attr('data-th', function (d) {
-            return d.idx;
-        })
-        .text(function (d) {
-            return d.value;
-        });
-
-    rows.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) });
-}
-
->>>>>>> 19f01043fe2866961d8fe6bea7e48bf190139efa
 
 function updateSimilarData(data) {
     var selection = similarList
@@ -311,7 +247,6 @@ var groupInfoContainer = d3.select("body").append("div")
     .style("padding", "30px")
     .style("height", "100%");
 
-<<<<<<< HEAD
 var filters = groupInfoContainer.append("div")
     .style("padding", "30px")
     .style("margin", "0 0 70px 0");
@@ -361,11 +296,6 @@ var singleCardInfo = groupInfoContainer
     .append("div")
     .style("height", "250px")
     .style("visibility", "hidden")
-=======
-var singleCardInfo = groupInfoContainer
-    .append("div")
-    .style("height", "250px")
->>>>>>> 19f01043fe2866961d8fe6bea7e48bf190139efa
     .style("margin", "0 0 70px 0");
 
 singleCardInfo.append("img")
@@ -480,23 +410,7 @@ function drawGraph(data) {
         path.attr("d", function (d, i) { return line(splines[i]); });
     });
 
-<<<<<<< HEAD
 }
-=======
-    createTable(
-        groupInfoContainer,
-        data.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
-            .filter((el, i) => i < 10),
-        [
-            { idx: "name", title: "Название" },
-            { idx: "usersCount", title: "Число подписчиков" },
-            { idx: "dt_create", title: "Год основания" },
-        ]
-    );
-
-
-});
->>>>>>> 19f01043fe2866961d8fe6bea7e48bf190139efa
 
 
 d3.select(window)
@@ -574,12 +488,9 @@ function labelClick(d) {
         .text('Кол-во пользователей: ' + d.usersCount || "");
 
     updateSimilarData(d.similarGroups.filter((el, i) => i < 10));
-<<<<<<< HEAD
 
     prevSelected = d;
 
-=======
->>>>>>> 19f01043fe2866961d8fe6bea7e48bf190139efa
 }
 
 function mouseover(d) {
