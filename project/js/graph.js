@@ -39,7 +39,7 @@ var loadData = new Promise((resolve, reject) => {
 
                 resultDataSet = resultDataSet
                     .sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
-                //.filter((em, id) => id < 100);
+                  //  .filter((em, id) => id < 10);
 
                 resolve(resultDataSet);
 
@@ -330,7 +330,7 @@ loadData.then((data) => {
     var rowsData = data.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) })
         .filter(el => filterState.dt_create[0] <= el["dt_create"] && el["dt_create"] <= filterState.dt_create[1]);
 
-    drawGraph(rowsData);
+    drawGraph(rowsData.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) }));
 
     var titles = [
         { idx: "name", title: "Название" },
@@ -353,12 +353,12 @@ loadData.then((data) => {
             .text("Период выборки: " + filterState.dt_create[0] + "-" + filterState.dt_create[1]);
 
         drawGraph(filteredData);
-        updateTable(filteredData.filter((el, i) => i < 10), titles)
+        updateTable(filteredData.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) }).filter((el, i) => i < 10), titles);
     })
 
     createTable(
         groupInfoContainer,
-        rowsData.filter((el, i) => i < 10),
+        rowsData.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) }).filter((el, i) => i < 10),
         titles,
     );
 
@@ -390,7 +390,10 @@ function drawGraph(data) {
         .remove();
 
     svg.selectAll("g.node")
-        .data(nodes.filter(function (n) { return !n.children; }))
+        .remove();
+
+    svg.selectAll("g.node")
+        .data(nodes.filter(function (n) { return !n.children; }), d => d.key)
         .enter().append("svg:g")
         .attr("class", "node")
         .attr("id", function (d) { return "node-" + d.key; })
@@ -405,10 +408,6 @@ function drawGraph(data) {
         //.on("mouseout", mouseout)
         .on("click", labelClick);
 
-    d3.select("input[type=range]").on("change", function () {
-        line.tension(this.value / 100);
-        path.attr("d", function (d, i) { return line(splines[i]); });
-    });
 
 }
 
