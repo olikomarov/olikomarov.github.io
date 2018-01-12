@@ -56,7 +56,7 @@ function createTable(mountSelection, data, titles) {
 
     var headder = mountSelection.append('span')
         .attr('class', "table-header")
-        .text("ТОП 10 ГРУПП ПО ПУЛЯРНОСТИ");
+        .text("TOP 10 - Most popular groups");
 
     var table = mountSelection.append('table');
 
@@ -252,7 +252,7 @@ var filters = groupInfoContainer.append("div")
     .style("margin", "0 0 70px 0");
 
 var filterStateIndicator = filters.append("span")
-    .text("Период выборки: " + (+filterState.dt_create[0]) + "-" + (+filterState.dt_create[1]))
+    .text("Time period: " + (+filterState.dt_create[0]) + "-" + (+filterState.dt_create[1]))
     .attr('id', "year-filter-state")
     .style("font-size", "18px")
 
@@ -350,7 +350,7 @@ loadData.then((data) => {
 
 
         d3.select("#year-filter-state")
-            .text("Период выборки: " + filterState.dt_create[0] + "-" + filterState.dt_create[1]);
+            .text("Time period: " + filterState.dt_create[0] + "-" + filterState.dt_create[1]);
 
         drawGraph(filteredData);
         updateTable(filteredData.sort((a, b) => { return d3.descending(a.usersCount, b.usersCount) }).filter((el, i) => i < 10), titles);
@@ -482,9 +482,9 @@ function labelClick(d) {
 
     d3.select('#group-info-name')
         .attr('href', d.link)
-        .text('Название: ' + d.name);
+        .text('Group name: ' + d.name);
     d3.select('#group-info-users-count')
-        .text('Кол-во пользователей: ' + d.usersCount || "");
+        .text('Amount of followers: ' + d.usersCount || "");
 
     updateSimilarData(d.similarGroups.filter((el, i) => i < 10));
 
