@@ -372,18 +372,6 @@ function drawGraph(data) {
         links = groups.relations(nodes),
         splines = bundle(links);
 
-
-    svg.selectAll("path.link")
-        .data(links, d => d.source.key + ":" + d.target.key)
-        .exit()
-        .remove();
-
-    var path = svg.selectAll("path.link")
-        .data(links, d => d.source.key + ":" + d.target.key)
-        .enter().append("svg:path")
-        .attr("class", function (d) { return "link source-" + d.source.key + " target-" + d.target.key; })
-        .attr("d", function (d, i) { return line(splines[i]); });
-
     svg.selectAll("g.node")
         .data(nodes.filter(function (n) { return !n.children; }))
         .exit()
@@ -391,7 +379,7 @@ function drawGraph(data) {
 
     svg.selectAll("g.node")
         .remove();
-
+    
     svg.selectAll("g.node")
         .data(nodes.filter(function (n) { return !n.children; }), d => d.key)
         .enter().append("svg:g")
@@ -407,8 +395,20 @@ function drawGraph(data) {
         //.on("mouseover", mouseover)
         //.on("mouseout", mouseout)
         .on("click", labelClick);
+        
+    svg.selectAll("path.link")
+        .data(links, d => d.source.key + ":" + d.target.key)
+        .exit()
+        .remove();
 
-
+    svg.selectAll("path.link").remove();
+        
+    var path = svg.selectAll("path.link")
+        .data(links, d => d.source.key + ":" + d.target.key)
+        .enter().append("svg:path")
+        .attr("class", function (d) { return "link source-" + d.source.key + " target-" + d.target.key; })
+        .attr("d", function (d, i) { return line(splines[i]); });
+        
 }
 
 
