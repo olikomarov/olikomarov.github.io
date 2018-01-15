@@ -1,27 +1,18 @@
-//Добавляем input в разметку
-//layout
 d3.select("input[value=\"force\"]").on("click", force_layout);
 d3.select("input[value=\"circular\"]").on("click", circular_layout);
 d3.select("input[value=\"grouped\"]").on("click", grouped_layout);  
-
-//force
 d3.select("input[value=\"norank\"]").on("click", force_layout);
 d3.select("input[value=\"rank\"]").on("click", force_layout);
 d3.select("input[value=\"growth\"]").on("click", force_layout);
 d3.select("input[value=\"location\"]").on("click", force_layout);
-
-//circular
 d3.select("input[value=\"cir_gdp\"]").on("click", circular_layout);
 d3.select("input[value=\"cir_pop\"]").on("click", circular_layout);
 d3.select("input[value=\"cir_none\"]").on("click", circular_layout);
 d3.select("input[value=\"cir_grouped\"]").on("click", circular_layout);
-
-//grouped
 d3.select("input[value=\"gr_horizontal\"]").on("click", grouped_layout);
 d3.select("input[value=\"gr_pie\"]").on("click", grouped_layout);
 d3.select("input[value=\"gr_none\"]").on("click", grouped_layout);
 
-//Объявление переменных, установка дефолтных значений
 var dataset = []; 
 var selectedYear = ""; 
 var selDataset = []; 
@@ -29,7 +20,6 @@ var selKey = "gdp";
 var group_shape = "none"
 var continents = ["Americas","Africa","Asia","Europe","Oceania"];
 
-  //Инициализация barchart(Global)
 var margin = {top: 5, bottom: 5, left: 10, right: 10};
 var width = 1500 - margin.left - margin.right;
 var height = 1500 - margin.top - margin.bottom;
@@ -56,7 +46,6 @@ var node_scale = d3.scale.linear();
 var tmp_links = [];
 var circular_layout_checked = false;
 
-//Установка GRAPH.NODES
 graph.nodes = d3.range(119).map(function() {  
   return { 
     cat: 1
@@ -64,10 +53,7 @@ graph.nodes = d3.range(119).map(function() {
 })
 
 graph.nodes.forEach(function(d, i) {
-  //graph.nodes.forEach(function(e, j) {
-  //  if(Math.random()>.99 && i!=j)
     graph.links.push({"source": i, "target": 0 })
-  //})
 });
 
 
@@ -104,10 +90,8 @@ node.append("text")
 		.attr("class","text")
 		.text("test");
 
-//Загрузка данных
 d3.json("data/countries_1995_2012.json", function(error, data){
 
-		//Мапинг данных
 		data.map(function(d,i){
 		    for (i = 0; i < d.years.length; i++) {
             
@@ -136,13 +120,12 @@ d3.json("data/countries_1995_2012.json", function(error, data){
 		rangechanged("2012");
 
     force.nodes(graph.nodes)
-      //.links(graph.links)
-      .start();
+       .start();
 
     sortingdata(selDataset,"gdp");
 		graph_update_norank();
 
-}); //Конец загрузки данных
+}); 
 
 function tick(e) {
 
@@ -155,19 +138,19 @@ function tick(e) {
         var k = 10 * e.alpha;
         graph.nodes.forEach(function(o, i) {
             switch(o.cont){
-                case continents[0]: //Америка
+                case continents[0]: 
                     o.x -= k*2;
                     break;
-                 case continents[1]: //Африка
+                 case continents[1]: 
                     o.x -= k;
                     break;
-                case continents[2]: //Азия
+                case continents[2]: 
                     //o.x +- 0
                     break;
-                case continents[3]: //Европа
+                case continents[3]: 
                     o.x += k;
                     break;
-                case continents[4]: //Океания
+                case continents[4]:
                     o.x += k*2;
                     break;             
             }
@@ -177,30 +160,24 @@ function tick(e) {
           var k = 6 * e.alpha;
 
           graph.nodes.forEach(function(o, i) {
-              //Группировка для pie
 
-              //Америка 
               switch(o.cont){
                   case continents[0]:
                       o.x += xyScale(centroid_xy[0].x)*k
                       o.y += xyScale(centroid_xy[0].y)*k
                       break;
-                  //Африка
                   case continents[1]:
                       o.x += xyScale(centroid_xy[1].x)*k
                       o.y += xyScale(centroid_xy[1].y)*k
                       break;
-                  //Азия
                   case continents[2]:
                       o.x += xyScale(centroid_xy[2].x)*k
                       o.y += xyScale(centroid_xy[2].y)*k
                       break;
-                  //Европа
                   case continents[3]:
                       o.x += xyScale(centroid_xy[3].x)*k
                       o.y += xyScale(centroid_xy[3].y)*k
                       break;
-                  //Океания
                   case continents[4]:
                       o.x += xyScale(centroid_xy[4].x)*k
                       o.y += xyScale(centroid_xy[4].y)*k
@@ -343,14 +320,13 @@ function keyChanged(selVal){
 
     var selGraph = "";
     
-    sortingdata(selDataset,selKey); //Сортировка данных
+    sortingdata(selDataset,selKey); 
 
     force_layout();
 }
 
 function force_layout(){
 
-    //change canvas size
     var width = 1500 - margin.left - margin.right;
     var height = 1500 - margin.top - margin.bottom;
 
@@ -361,7 +337,7 @@ function force_layout(){
 
     var selGraph = "";
     
-    sortingdata(selDataset,selKey); //Сортировка
+    sortingdata(selDataset,selKey); 
 
     d3.selectAll("input").each(function(d) {
         if(d3.select(this).attr("name") == "ranking" && d3.select(this).node().checked) {
@@ -570,7 +546,6 @@ function get_centroid(){
           .range([-2,2]);
 }
 
-//Range
 function rangechanged(newVal){
 
     var indexed_data = []
